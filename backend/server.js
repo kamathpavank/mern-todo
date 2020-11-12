@@ -14,12 +14,12 @@ app.use(bodyParser.json());
 mongoose.connect("mongodb://127.0.0.1:27017/todos", { useNewUrlParser: true });
 const connection = mongoose.connection;
 
-connection.once("open", function() {
+connection.once("open", function () {
   console.log("mongoDB connection successful");
 });
 
-todoRoutes.route("/").get(function(req, res) {
-  Todo.find(function(err, todos) {
+todoRoutes.route("/").get(function (req, res) {
+  Todo.find(function (err, todos) {
     if (err) {
       console.log(err);
     } else {
@@ -28,9 +28,9 @@ todoRoutes.route("/").get(function(req, res) {
   });
 });
 
-todoRoutes.route("/:id").get(function(req, res) {
+todoRoutes.route("/:id").get(function (req, res) {
   let id = req.params.id;
-  Todo.findById(id, function(err, todo) {
+  Todo.findById(id, function (err, todo) {
     if (err) {
       console.log(err);
     } else {
@@ -39,20 +39,21 @@ todoRoutes.route("/:id").get(function(req, res) {
   });
 });
 
-todoRoutes.route("/add").post(function(req, res) {
+todoRoutes.route("/add").post(function (req, res) {
   let todo = new Todo(req.body);
   todo.save((err, todo) => {
     if (err) {
       console.log(err);
       res.status(400).send("adding todo failed");
     } else {
+      console.log(todo);
       res.status(200).json({ todo: "todo added" });
     }
   });
 });
 
-todoRoutes.route("/delete/:id").post(function(req, res) {
-  Todo.deleteOne({ _id: req.params.id }, err => {
+todoRoutes.route("/delete/:id").post(function (req, res) {
+  Todo.deleteOne({ _id: req.params.id }, (err) => {
     if (err) {
       console.log(err);
       res.status(400).send("deleting todo failed");
@@ -62,8 +63,8 @@ todoRoutes.route("/delete/:id").post(function(req, res) {
   });
 });
 
-todoRoutes.route("/update/:id").post(function(req, res) {
-  Todo.findById(req.params.id, function(err, todo) {
+todoRoutes.route("/update/:id").post(function (req, res) {
+  Todo.findById(req.params.id, function (err, todo) {
     if (!todo) {
       res.status(404).send("todo not found");
     } else {
@@ -71,7 +72,7 @@ todoRoutes.route("/update/:id").post(function(req, res) {
         todoDesc,
         todoCompleted,
         todoResponsible,
-        todoPriority
+        todoPriority,
       } = req.body;
       todo.todoDesc = todoDesc;
       todo.todoCompleted = todoCompleted;
@@ -90,7 +91,15 @@ todoRoutes.route("/update/:id").post(function(req, res) {
 });
 
 app.use("/todos", todoRoutes);
+app.use(express.static("frontend/build"));
 
-app.listen(PORT, function() {
+// Express will serve up index.html file
+// if it doesnt recognize the route
+const path = require("path");
+app.get("*", (req, res) => {
+  res.sendFile(path.resolve(__dirname, "frontend", "build", "index.html"));
+});
+
+app.listen(PORT, function () {
   console.log("Server running on PORT: " + PORT);
 });
