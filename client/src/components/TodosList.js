@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import {apiUrl} from '../apiUrl'
 
 import Todo from "./Todo";
 
@@ -9,7 +10,7 @@ export default function TodosList() {
 
   function fetchTodos() {
     axios
-      .get("http://localhost:4000/todos")
+      .get(apiUrl+"todos")
       .then(res => {
         setTodos(res.data);
       })

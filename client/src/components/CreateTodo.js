@@ -1,33 +1,12 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import axios from "axios";
+import {apiUrl} from '../apiUrl'
 
-export default function EditTodo({ match: { params }, history }) {
-  const [isLoading, setIsLoading] = useState(true);
+export default function CreateTodo({ history }) {
   const [todoDesc, setTodoDesc] = useState("");
   const [todoResponsible, setTodoResponsible] = useState("");
   const [todoPriority, setTodoPriority] = useState("");
-  const [todoCompleted, setTodoCompleted] = useState(false);
-
-  useEffect(() => {
-    axios
-      .get(`http://localhost:4000/todos/${params.id}`)
-      .then(res => {
-        const {
-          todoCompleted,
-          todoDesc,
-          todoPriority,
-          todoResponsible
-        } = res.data;
-        setTodoCompleted(todoCompleted);
-        setTodoDesc(todoDesc);
-        setTodoPriority(todoPriority);
-        setTodoResponsible(todoResponsible);
-      })
-      .then(() => setIsLoading(false))
-      .catch(err => {
-        console.log(err);
-      });
-  }, [params.id]);
+  const todoCompleted = false;
 
   const onSubmit = e => {
     e.preventDefault();
@@ -40,22 +19,14 @@ export default function EditTodo({ match: { params }, history }) {
     };
 
     axios
-      .post(`http://localhost:4000/todos/update/${params.id}`, newTodo)
+      .post(apiUrl+"todos/add", newTodo)
       .then(res => console.log(res.data))
       .then(() => history.push("/"));
   };
 
-  const deleteTodo = e => {
-    e.preventDefault();
-    axios
-      .post(`http://localhost:4000/todos/delete/${params.id}`)
-      .then(res => console.log(res.data))
-      .then(() => history.push("/"));
-  };
-
-  return !isLoading ? (
+  return (
     <div style={{ marginTop: 20 }}>
-      <h3>Edit Todo</h3>
+      <h3>Create Todo</h3>
       <form onSubmit={onSubmit}>
         <div className="form-group">
           <label>Description: </label>
@@ -119,35 +90,14 @@ export default function EditTodo({ match: { params }, history }) {
             </label>
           </div>
         </div>
-        <div className="form-check form-check-inline">
-          <input
-            type="checkbox"
-            className="form-check-input"
-            name="completedCheckbox"
-            id="completedCheckbox"
-            value={todoCompleted}
-            checked={todoCompleted}
-            onChange={e => setTodoCompleted(!todoCompleted)}
-          />
-          <label htmlFor="completedCheckbox" className="form-check-label">
-            Completed
-          </label>
-        </div>
-        <br />
-        <br />
         <div className="form-group">
-          <input type="submit" className="btn btn-primary" value="Edit Todo" />
-
           <input
-            type="button"
-            className="btn btn-danger float-right"
-            value="Delete Todo"
-            onClick={deleteTodo}
+            type="submit"
+            className="btn btn-primary"
+            value="Create Todo"
           />
         </div>
       </form>
     </div>
-  ) : (
-    <div>Getting Todo</div>
   );
 }

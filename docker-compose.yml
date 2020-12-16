@@ -1,0 +1,41 @@
+version: "3"
+services:
+  mongo:
+    container_name: mongo
+    image: mongo
+    command: mongod --port 27018
+    volumes:
+      - ./data:/data/db
+    ports:
+      - "27018:27018"
+  nginx:
+    container_name: nginx
+    restart: always
+    build:
+      dockerfile: Dockerfile
+      context: ./nginx
+    ports:
+      - "3050:80"
+    depends_on:
+      - client
+      - api
+  api:
+    container_name: api
+    build:
+      dockerfile: Dockerfile
+      context: ./server
+    volumes:
+      - /app/node_modules
+      - ./server:/app
+    depends_on:
+      - mongo
+    external_links:
+      - mongo
+  client:
+    container_name: client
+    build:
+      dockerfile: Dockerfile
+      context: ./client
+    volumes:
+      - /app/node_modules
+      - ./client:/app
